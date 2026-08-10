@@ -1,0 +1,9 @@
+# Skills are read raw by agents and baked by scripts/bake-shared.mjs, which
+# compares byte-for-byte. A CRLF checkout would make every baked block look
+# stale in CI and inject mixed line endings into published files.
+* text=auto eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.mjs text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf

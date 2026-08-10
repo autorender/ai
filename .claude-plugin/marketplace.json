@@ -1,0 +1,37 @@
+{
+  "name": "autorender",
+  "owner": {
+    "name": "Autorender",
+    "email": "support@autorender.io"
+  },
+  "plugins": [
+    {
+      "name": "autorender",
+      "source": "./",
+      "files": [
+        ".claude-plugin/**",
+        ".mcp.json",
+        "shared/**",
+        "skills/**"
+      ],
+      "version": "1.0.0",
+      "author": {
+        "name": "Autorender"
+      },
+      "description": "Upload, transform, and deliver images with Autorender — responsive images, DPR handling, CDN delivery, and framework SDKs for React, Next.js, Vue, Angular, and Svelte.",
+      "category": "developer-tools",
+      "homepage": "https://autorender.io",
+      "tags": [
+        "images",
+        "media",
+        "cdn",
+        "upload",
+        "responsive-images",
+        "image-optimization",
+        "cloudinary-alternative",
+        "imagekit-alternative",
+        "digital-asset-management"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+# This repository is public and contains no application code — nothing here
+# should ever hold a credential. These entries exist so a stray local file or a
+# careless `git add -A` cannot publish one.
+
+# Environment and credential files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# Local scratch and trial output
+/tmp/
+/scratch/
+*.local
+
+# Editor and OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Dependencies and build output (the repo itself has none by design)
+node_modules/
+
+# Benchmark runs are local; benchmark result CSVs are never committed.
+benchmarks/results/*.csv
+benchmarks/results/local*.csv

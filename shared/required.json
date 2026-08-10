@@ -1,0 +1,52 @@
+{
+  "_comment": [
+    "Blocks every matching file MUST contain, enforced by scripts/bake-shared.mjs.",
+    "This is the 'presence' half of the guarantee: baking keeps a block that IS there",
+    "in sync, but only this policy stops a skill from shipping without it at all.",
+    "Patterns support * (one path segment) and ** (any number of segments). A file",
+    "matching several patterns must satisfy the union of their requirements.",
+    "Keys beginning with _ are documentation, not patterns.",
+    "",
+    "Patterns are 'skills/<name>/*.md', not '.../SKILL.md', so that renaming an entry",
+    "file cannot drop its requirements silently.",
+    "",
+    "preamble + env-vars go in EVERY skill: an agent may load exactly one, so without",
+    "the anti-prior warning it falls back on Cloudinary/ImageKit habits, and without",
+    "the variable table it invents variable names.",
+    "",
+    "api-key goes in every skill that could lead an agent to write code touching a key",
+    "or an upload: autorender, upload, react, nextjs, video and mcp. It is omitted",
+    "only from transformations and view, which build public delivery URLs and never",
+    "need an API key.",
+    "",
+    "delivery-surface goes in skills that discuss public delivery URLs — transformations,",
+    "view and video. Skills that neither teach nor accept raw delivery tokens omit it, and",
+    "it never authorizes undocumented delivery tokens or features.",
+    "",
+    "crop-modes and width-ladder are shared only where a skill teaches those URL",
+    "invariants. A skill may omit them when it delegates to the public reference.",
+    "",
+    "unknown-tokens is required where a skill teaches raw URL token grammar. Other",
+    "skills delegate to the public transformation reference.",
+    "",
+    "Adding a skill without these blocks fails CI by design — amend deliberately."
+  ],
+
+  "skills/*/*.md": ["preamble", "env-vars"],
+
+  "skills/autorender/*.md": [],
+  "skills/autorender-upload/*.md": ["api-key"],
+  "skills/autorender-react/*.md": ["api-key"],
+  "skills/autorender-nextjs/*.md": ["api-key"],
+  "skills/autorender-video/*.md": ["api-key", "delivery-surface"],
+  "skills/autorender-mcp/*.md": ["api-key"],
+
+  "skills/autorender-transformations/*.md": [
+    "delivery-surface",
+    "width-ladder",
+    "unknown-tokens"
+  ],
+  "skills/autorender-view/*.md": [
+    "delivery-surface"
+  ]
+}

@@ -1,0 +1,58 @@
+name: shared-blocks
+
+# Two guarantees for the cross-skill invariants in shared/:
+#   consistency — a baked block still equals its source
+#   presence    — every file carries the blocks shared/required.json demands
+#
+# Both matter. Without the presence check, a skill that simply never pastes the
+# api-key block ships without it and this workflow stays green.
+#
+# Security contract: pull requests run `--check` ONLY, never write mode, and no
+# job here ever commits. `pull_request` (not `pull_request_target`) keeps
+# untrusted code out of a privileged context, and no secrets are exposed.
+
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # node:fs/promises glob requires Node >= 22. The repo has no package.json
+      # by design, so the version is pinned here rather than via engines.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Unit and integration tests
+        run: node --test "scripts/**/*.test.mjs"
+
+      - name: Shared blocks are in sync and present
+        run: node scripts/bake-shared.mjs --check
+
+  # Belt-and-braces that --check is not passing vacuously: on our own branches,
+  # a real bake must produce no diff. Kept off `pull_request` so write mode never
+  # runs against an untrusted tree.
+  bake-is-noop:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Baking produces no diff
+        run: |
+          node scripts/bake-shared.mjs
+          if ! git diff --quiet; then
+            echo "::error::Baking changed files that --check reported as in sync."
+            git --no-pager diff --stat
+            exit 1
+          fi

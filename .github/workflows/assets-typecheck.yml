@@ -1,0 +1,126 @@
+name: assets-typecheck
+
+# Files under skills/*/assets/ exist to be copied verbatim into other people's
+# production code, so "these actually work" has to be enforced rather than asserted.
+# The repo has no package.json by design, so the toolchain is installed into a temp
+# directory and never committed.
+
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # A copier's project may not be strict. `create-next-app` added to an existing
+        # project writes "strict": false, so a reference file that only compiles under
+        # strict mode hard-fails exactly the audience most likely to copy it.
+        strict: [true, false]
+    name: typecheck (strict=${{ matrix.strict }})
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Syntax-check plain JavaScript assets
+        run: |
+          shopt -s nullglob
+          found=0
+          for file in skills/*/assets/*.mjs skills/*/assets/*.js; do
+            found=1
+            echo "node --check $file"
+            node --check "$file"
+          done
+          if [ "$found" = 0 ]; then echo "no .mjs/.js assets found"; fi
+
+      - name: Typecheck TypeScript assets
+        run: |
+          shopt -s nullglob
+          files=(skills/*/assets/*.ts skills/*/assets/*.tsx)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "no .ts/.tsx assets found"
+            exit 0
+          fi
+
+          work="$(mktemp -d)"
+          mkdir -p "$work/src"
+          # Prefix with the skill name: two skills may both ship assets/route.ts.
+          for file in "${files[@]}"; do
+            skill="$(basename "$(dirname "$(dirname "$file")")")"
+            cp "$file" "$work/src/${skill}__$(basename "$file")"
+          done
+
+          cd "$work"
+          npm init -y > /dev/null
+          npm i -D typescript@5 @types/react@19 @types/node --silent
+
+          cat > tsconfig.json <<'JSON'
+          {
+            "compilerOptions": {
+              "target": "ES2022",
+              "lib": ["dom", "dom.iterable", "es2022"],
+              "jsx": "react-jsx",
+              "module": "esnext",
+              "moduleResolution": "bundler",
+              "strict": ${{ matrix.strict }},
+              "noEmit": true,
+              "skipLibCheck": true,
+              "esModuleInterop": true,
+              "isolatedModules": true,
+              "types": ["node", "react"]
+            },
+            "include": ["src/**/*"]
+          }
+          JSON
+
+          npx tsc --noEmit
+
+  sdk-contract:
+    name: published SDK contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install published SDK packages and typecheck their public contract
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d)"
+          cp .github/sdk-contract.ts "$work/sdk-contract.ts"
+          cd "$work"
+          npm init -y > /dev/null
+          npm install --no-save --ignore-scripts \
+            @autorender/js @autorender/react @autorender/nextjs \
+            react react-dom next \
+            typescript@5 @types/react@19 @types/react-dom@19 @types/node --silent
+          cat > tsconfig.json <<'JSON'
+          {
+            "compilerOptions": {
+              "target": "ES2022",
+              "lib": ["dom", "dom.iterable", "es2022"],
+              "jsx": "react-jsx",
+              "module": "esnext",
+              "moduleResolution": "bundler",
+              "strict": true,
+              "noEmit": true,
+              "skipLibCheck": true,
+              "esModuleInterop": true,
+              "isolatedModules": true,
+              "types": ["node", "react"]
+            },
+            "include": ["sdk-contract.ts"]
+          }
+          JSON
+          npx tsc --noEmit

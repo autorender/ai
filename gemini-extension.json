@@ -1,0 +1,12 @@
+{
+  "name": "autorender",
+  "version": "1.0.0",
+  "mcpServers": {
+    "autorender": {
+      "url": "https://api-mcp.autorender.io/sse",
+      "oauth": {
+        "enabled": true
+      }
+    }
+  }
+}

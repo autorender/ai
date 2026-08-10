@@ -1,0 +1,25 @@
+{
+  "name": "autorender",
+  "displayName": "Autorender",
+  "description": "Upload, transform, and deliver images with Autorender — responsive images, DPR handling, CDN delivery, React, Next.js, Vue, Angular, Svelte. Cloudinary and ImageKit alternative.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Autorender",
+    "url": "https://autorender.io"
+  },
+  "homepage": "https://autorender.io",
+  "repository": "https://github.com/autorender/ai",
+  "license": "MIT",
+  "keywords": [
+    "images",
+    "media",
+    "cdn",
+    "upload",
+    "transformations",
+    "responsive-images",
+    "image-optimization",
+    "cloudinary-alternative",
+    "imagekit-alternative",
+    "digital-asset-management"
+  ]
+}

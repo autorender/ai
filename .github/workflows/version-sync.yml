@@ -1,0 +1,106 @@
+name: Version sync
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Read-only: these jobs only inspect the tree. Declared explicitly so the repo
+# default cannot grant a public-PR workflow more than it needs.
+permissions:
+  contents: read
+
+jobs:
+  versions-match:
+    name: Manifest and skill versions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The four plugin manifests must agree: `claude plugin tag` rejects a
+      # plugin whose plugin.json and marketplace entry disagree, and a stale
+      # gemini-extension.json installs a version that does not exist.
+      #
+      # Skills are versioned INDEPENDENTLY of the plugin and of each other, so a
+      # fix to one skill ships without touching the rest. They are therefore
+      # checked for a valid version, not a matching one.
+      - name: Plugin manifests agree
+        run: |
+          claude_plugin=$(jq -r .version .claude-plugin/plugin.json)
+          marketplace=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
+          cursor=$(jq -r .version .cursor-plugin/plugin.json)
+          gemini=$(jq -r .version gemini-extension.json)
+
+          echo ".claude-plugin/plugin.json      $claude_plugin"
+          echo ".claude-plugin/marketplace.json $marketplace"
+          echo ".cursor-plugin/plugin.json      $cursor"
+          echo "gemini-extension.json           $gemini"
+
+          for found in "$claude_plugin" "$marketplace" "$cursor" "$gemini"; do
+            case "$found" in ""|null)
+              echo "::error::A manifest is missing its version key."
+              exit 1;;
+            esac
+          done
+
+          for found in "$marketplace" "$cursor" "$gemini"; do
+            if [ "$found" != "$claude_plugin" ]; then
+              echo "::error::Plugin manifest versions disagree. Bump all four to the same value."
+              exit 1
+            fi
+          done
+
+          echo "All four plugin manifests are at $claude_plugin."
+
+      - name: Every skill declares a valid version
+        run: |
+          status=0
+          for dir in skills/*/; do
+            name=${dir#skills/}
+            name=${name%/}
+            skill="${dir}SKILL.md"
+            if [ ! -f "$skill" ]; then
+              echo "::error::$dir has no SKILL.md — an agent cannot load it"
+              status=1
+              continue
+            fi
+            declared=$(sed -n '/^---$/,/^---$/{s/^name: *//p;}' "$skill" | head -1)
+            if [ "$declared" != "$name" ]; then
+              echo "::error file=$skill::frontmatter name '$declared' does not match directory '$name'"
+              status=1
+            fi
+            version=$(sed -n '/^---$/,/^---$/{s/^  version: "\(.*\)"$/\1/p;}' "$skill" | head -1)
+            if [ -z "$version" ]; then
+              echo "::error file=$skill::metadata.version not found — expected a line like '  version: \"1.0.0\"'"
+              status=1
+              continue
+            fi
+            if ! printf '%s' "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "::error file=$skill::version '$version' is not semver (x.y.z)"
+              status=1
+              continue
+            fi
+            echo "$skill  $version"
+          done
+          exit $status
+
+  mcp-config-is-a-dotfile:
+    name: MCP config is discoverable
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Claude Code only reads `.mcp.json` from a plugin root. A file named
+      # `mcp.json` is silently ignored, so the plugin installs with no MCP server
+      # and the failure looks like the server being down.
+      - name: Check for .mcp.json
+        run: |
+          if [ ! -f .mcp.json ]; then
+            echo "::error::.mcp.json is missing from the repository root."
+            exit 1
+          fi
+          if [ -f mcp.json ]; then
+            echo "::error file=mcp.json::mcp.json is not discovered by any client. Rename it to .mcp.json."
+            exit 1
+          fi
+          jq -e '.mcpServers.autorender.url' .mcp.json > /dev/null
