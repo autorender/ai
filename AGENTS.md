@@ -6,10 +6,11 @@ This repository contains agent skills and AI integrations for [Autorender](https
 
 Skills teach AI coding assistants how to use Autorender correctly.
 
-Eight granular skills, so an agent loads only what the task needs. Each stands
+Nine granular skills, so an agent loads only what the task needs. Each stands
 alone — they never import one another.
 
 - **[skills/autorender/](skills/autorender/)** — entry point: env vars, SDK matrix, security rules, routing
+- **[skills/autorender-sandbox/](skills/autorender-sandbox/)** — HELD DRAFT; provision, upload, deliver, and claim handoff; DO NOT PUBLISH until launch approval
 - **[skills/autorender-upload/](skills/autorender-upload/)** — uploads: server, browser widget, proxy routes, multipart
 - **[skills/autorender-transformations/](skills/autorender-transformations/)** — URL tokens: resize, crop, format, effects
 - **[skills/autorender-view/](skills/autorender-view/)** — View SDK: `createAR`, responsive images, DPR

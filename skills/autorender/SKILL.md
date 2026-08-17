@@ -41,6 +41,7 @@ Cloudinary or ImageKit equivalent exists.
 
 | Task | Skill |
 |------|-------|
+| Provision without existing credentials | **autorender-sandbox** — HELD DRAFT; do not publish until sandbox launch is approved |
 | URL transformations | **autorender-transformations** |
 | ViewTag and responsive images | **autorender-view** |
 | React | **autorender-react** |

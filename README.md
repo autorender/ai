@@ -9,6 +9,7 @@ Coding models carry Cloudinary and ImageKit patterns in their training data, and
 | Path | Contents |
 |------|----------|
 | [skills/autorender/](skills/autorender/) | **Entry point** — environment variables, SDK selection matrix, security rules, and routing to the skill below that fits the task |
+| [skills/autorender-sandbox/](skills/autorender-sandbox/) | **HELD DRAFT — DO NOT PUBLISH until sandbox launch is approved** — provision, upload, deliver, and hand off a temporary claimable sandbox |
 | [skills/autorender-upload/](skills/autorender-upload/) | Server and browser uploads, proxy routes, multipart, remote import, reading files back |
 | [skills/autorender-transformations/](skills/autorender-transformations/) | URL token grammar — resize, crop, format, quality, focal point, effects, layers |
 | [skills/autorender-view/](skills/autorender-view/) | Framework-agnostic View SDK — `createAR`, responsive `srcset`, DPR, server-side URLs |
