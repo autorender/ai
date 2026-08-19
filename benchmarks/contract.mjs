@@ -823,6 +823,79 @@ async function main() {
     },
   );
 
+  // ── Public-key scope ────────────────────────────────────────────────────────────────
+  // The skills now tell agents it is safe to ship the public key in a bundle. That advice
+  // is only sound while the platform actually confines the key to uploading, so this is
+  // the one assertion here whose failure is a security problem rather than a stale doc.
+  //
+  // Needs the benchmark workspace's PUBLIC key, which is a second credential the private
+  // bench key cannot substitute for. Absent, it skips rather than fails: a missing
+  // credential is a harness gap, and reporting it as DRIFT would mean the file cried wolf
+  // on every machine that has not set it.
+  const publicKey = process.env.AUTORENDER_BENCH_PUBLIC_KEY;
+
+  await assertClaim(
+    'the public key can upload',
+    'shared/invariants/api-key.md rule 1 — direct browser upload with the public key',
+    async () => {
+      if (!publicKey) {
+        throw new Inconclusive(
+          'AUTORENDER_BENCH_PUBLIC_KEY is not set — copy the benchmark workspace public key ' +
+            'from its API Keys page. Without it the upload-only claim is untested.',
+        );
+      }
+      const name = `pub-${Date.now()}.png`;
+      const res = await upload(publicKey, pngForm(PNG_1X1, { file_name: name, folder }));
+      if (res.status !== 201) {
+        throw new Error(
+          `public-key upload returned ${res.status}, expected 201 — if uploads now reject the ` +
+            'public key, every browser uploader the skills describe is broken',
+        );
+      }
+      uploaded = true;
+      runFolderNo ??= (await res.json()).folder_no;
+      return 'still 201';
+    },
+  );
+
+  await assertClaim(
+    'the public key is refused on every non-upload endpoint',
+    'shared/invariants/api-key.md — "a public key on anything other than an upload endpoint returns 403"',
+    async () => {
+      if (!publicKey) {
+        throw new Inconclusive('AUTORENDER_BENCH_PUBLIC_KEY is not set');
+      }
+
+      // Listing is the one that matters most: it is what a naive gallery reaches for, and
+      // the skills promise it fails closed rather than leaking the whole workspace.
+      const listed = await listFiles(publicKey);
+      if (listed.status !== 403) {
+        const leaked = listed.ok ? filesOf(await listed.json()).length : 0;
+        throw new Error(
+          `GET /api/v1/files with the public key returned ${listed.status}, expected 403` +
+            (listed.ok
+              ? ` and listed ${leaked} assets — the public key is now readable, so shipping ` +
+                'it in a bundle exposes the workspace. Fix the platform or rewrite rules 2 and 10.'
+              : ''),
+        );
+      }
+
+      // A destructive verb too, so a change that only re-opened reads is still caught.
+      const deleted = await fetch(`${UPLOAD_BASE}/api/v1/files/does-not-exist`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${publicKey}` },
+      });
+      if (deleted.status !== 403) {
+        throw new Error(
+          `DELETE /api/v1/files/… with the public key returned ${deleted.status}, expected 403 ` +
+            '— a browser-visible key must never reach a destructive endpoint',
+        );
+      }
+
+      return 'listing and delete both 403';
+    },
+  );
+
   safeLog.info('');
   // Loudly, and after the headline. A skip that reads as a pass rebuilds exactly the
   // vacuous-confidence problem this file exists to remove.
