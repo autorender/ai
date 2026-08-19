@@ -3,7 +3,7 @@
  *
  * Copy to `app/api/assets/[fileNo]/route.ts`.
  *
- * These are the destructive operations, and the API key is unscoped: it deletes or
+ * These are the destructive operations, and a private key is unrestricted: it deletes or
  * renames whatever `file_no` it is handed, with no notion of who owns it. So the
  * ownership check below is not defence in depth — it is the ONLY thing standing
  * between a signed-in user and every other user's assets.

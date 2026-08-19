@@ -18,6 +18,14 @@ alone — they never import one another.
 - **[skills/autorender-video/](skills/autorender-video/)** — `ARVideo` and video tokens
 - **[skills/autorender-mcp/](skills/autorender-mcp/)** — managing assets through the MCP server
 
+## Prompts
+
+[prompts/](prompts/) holds plain-text prompts a human copies and pastes. They are not
+skills: no frontmatter, no shared blocks, and no skill loader reads them.
+
+- **[prompts/agent-onboarding.md](prompts/agent-onboarding.md)** — sandbox API reference
+  for no-code app builders: provision an anonymous workspace, upload, deliver
+
 ## MCP Server
 
 Autorender exposes an MCP server for AI agents to manage assets directly.

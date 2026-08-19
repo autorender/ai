@@ -16,6 +16,7 @@ Coding models carry Cloudinary and ImageKit patterns in their training data, and
 | [skills/autorender-nextjs/](skills/autorender-nextjs/) | Next.js — App Router, Server Components, `next.config`, `nextOptimize` |
 | [skills/autorender-video/](skills/autorender-video/) | `ARVideo`, the `video.js` peer, its own import path, video tokens |
 | [skills/autorender-mcp/](skills/autorender-mcp/) | Managing real assets through the MCP server while building |
+| [prompts/](prompts/) | Copy-paste prompts for humans and no-code builders — plain text, not skills, no shared blocks |
 | [shared/](shared/) | Single source of truth for cross-skill invariants, injected by `scripts/bake-shared.mjs` |
 | [.claude-plugin/](.claude-plugin/) | Claude Code plugin and marketplace manifests |
 | [.cursor-plugin/](.cursor-plugin/) | Cursor plugin manifest |
@@ -59,7 +60,7 @@ Each of these fails without an error message, which is why the skill exists:
 
 - **Invalid URL tokens do not fail consistently.** Depending on the token, a typo may return an unoptimized `200` or a `404` indistinguishable from a bad asset path.
 - **View exports live under the `/viewtag` subpath.** `import { createAR } from '@autorender/js'` returns `undefined`; the package root is the uploader.
-- **API keys are unscoped.** One key grants full workspace access, including delete. Public apps keep it server-side; the browser widget is only for trusted internal/admin users.
+- **There are two key types, and the wrong one returns `403`.** The public key uploads and nothing else, so it is safe in browser code; a private key grants full workspace access, including delete, and belongs on the server. A private key in a bundle is a workspace takeover; a public key on `GET /api/v1/files` is a `403`.
 - **`file_name` is required on every direct upload.** Omitting it returns `400 FILE_NAME_REQUIRED`.
 - **The uploader stylesheet is never injected for you.** Skip `import '@autorender/<pkg>/styles'` and the widget renders unstyled, with a clean console.
 - **`ARVideo` needs `video.js`.** It is an optional peer dependency (`^8`); without it, the video entry fails to resolve or its lazy player import rejects.

@@ -14,6 +14,9 @@ skills/autorender-nextjs/        ← Next.js
 skills/autorender-video/         ← ARVideo and video tokens
 skills/autorender-mcp/           ← MCP asset management during a build
 
+prompts/                 ← copy-paste prompts for humans and no-code builders
+  agent-onboarding.md    ← sandbox API reference pasted into Lovable/v0/Bolt
+
 shared/                  ← single source of truth for cross-skill invariants
   preamble.md            ← the anti-prior warning
   env-vars.md            ← environment variable table

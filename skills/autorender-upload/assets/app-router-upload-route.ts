@@ -4,7 +4,7 @@
  * Copy to `app/api/upload/route.ts`. Pair with `upload-client.tsx`.
  *
  * This is the ONLY correct shape for a public-facing app. Autorender API keys are
- * unscoped — one key can read, rename and delete every asset in the workspace —
+ * a private key — it can read, rename and delete every asset in the workspace —
  * and there is no client-token mode, so the key must never reach the browser.
  *
  * Requires:

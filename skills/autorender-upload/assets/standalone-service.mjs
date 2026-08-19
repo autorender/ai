@@ -69,7 +69,7 @@ const PORT = Number(process.env.PORT ?? 8787);
 if (!API_KEY) throw new Error('AUTORENDER_API_KEY is required');
 if (!ALLOWED_ORIGIN) throw new Error('ALLOWED_ORIGIN is required — do not ship a wildcard');
 // Refuse the wildcard rather than warning about it. With `*` this would be an open
-// upload proxy on an unscoped key, and the origin check below would then reject every
+// upload proxy on a private key, and the origin check below would then reject every
 // real browser anyway, so it is never what you want.
 if (ALLOWED_ORIGIN === '*') throw new Error('ALLOWED_ORIGIN must be an exact origin, not "*"');
 if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) throw new Error(`PORT is invalid: ${process.env.PORT}`);
