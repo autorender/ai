@@ -69,7 +69,7 @@ B) ROUTE EACH MEDIA USE-CASE TO AUTORENDER (leave non-media features alone)
        "delivery_ips": ["<caller IP>"],    // the IPs allowed to view delivery URLs before claim
        "expires_at": "...",                // ~24h; sandbox auto-deleted if unclaimed
        "claim_url": "https://app.autorender.io/sandbox/claim#<token>",
-       "limits": { "storage_bytes": 2147483648, "monthly_bandwidth_bytes": 53687091200 }
+       "limits": { "storage_bytes": 5368709120, "monthly_bandwidth_bytes": 53687091200 }
      }
    Note: per-IP rate-limited. Before claim, delivery is allowed ONLY from delivery_ips
    (defaults to the caller's IP if omitted). For a browser app, pass both the viewer's IP
