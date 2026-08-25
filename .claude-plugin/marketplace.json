@@ -4,16 +4,11 @@
     "name": "Autorender",
     "email": "support@autorender.io"
   },
+  "description": "Agent skills and MCP server for building with Autorender — image upload, transformation, and CDN delivery.",
   "plugins": [
     {
       "name": "autorender",
       "source": "./",
-      "files": [
-        ".claude-plugin/**",
-        ".mcp.json",
-        "shared/**",
-        "skills/**"
-      ],
       "version": "1.0.0",
       "author": {
         "name": "Autorender"
